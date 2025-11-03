@@ -11,6 +11,7 @@ Estudos de Flutter para a empresa junior da universidade estadual do estado do r
 - [Classes e Objetos](#classes-e-objetos)
 - [Coleções](#coleções)
 - [Null Safety](#null-safety)
+- [Async/Await e Futures](#asyncawait-e-futures)
 
 ## Introdução ao Dart
 
@@ -481,7 +482,7 @@ void main() {
   apelido = null; // OK
   apelido = 'Johnny'; // OK
   
-  // Operador de verificação de null (!!)
+  // Operador de verificação de null (?)
   String? texto;
   // print(texto.length); // ERRO! Pode ser null
   print(texto?.length); // OK - retorna null se texto for null
