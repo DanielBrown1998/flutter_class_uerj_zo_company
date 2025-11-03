@@ -361,6 +361,7 @@ class Circulo extends Forma {
   
   @override
   double calcularArea() {
+    // Nota: Em produção, use math.pi da biblioteca dart:math
     return 3.14159 * raio * raio;
   }
 }
@@ -526,6 +527,7 @@ class Usuario {
   
   // Método que retorna valor nullable
   String? obterDominio() {
+    // Exemplo simplificado para demonstração
     return email?.split('@').last;
   }
 }
