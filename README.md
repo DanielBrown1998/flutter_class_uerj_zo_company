@@ -2870,6 +2870,383 @@ void main() {
   print(invertido); // {25: João, 30: Maria, 22: Pedro}
 }
 
+## Null Safety
+
+Dart tem suporte nativo para null safety, ajudando a evitar erros de null pointer.
+
+### Conceitos Básicos de Null Safety
+
+```dart
+void main() {
+  // Variável não-nullable (não aceita null)
+  String nome = 'João';
+  // nome = null; // ERRO! Não pode ser null
+  
+  // Variável nullable (aceita null)
+  String? apelido;
+  apelido = null; // OK
+  apelido = 'Johnny'; // OK
+  
+  // Operador de verificação de null (?)
+  String? texto;
+  // print(texto.length); // ERRO! Pode ser null
+  print(texto?.length); // OK - retorna null se texto for null
+  
+  // Operador de coalescência null (??)
+  String? nomeUsuario;
+  String exibir = nomeUsuario ?? 'Visitante';
+  print(exibir); // 'Visitante'
+  
+  // Operador de atribuição null-aware (??=)
+  String? valor;
+  valor ??= 'Padrão'; // Atribui apenas se valor for null
+  print(valor); // 'Padrão'
+  
+  valor = 'Existente';
+  valor ??= 'Novo'; // Não atribui, pois valor já existe
+  print(valor); // 'Existente'
+  
+  // Assert non-null (!)
+  String? nomeCompleto = 'João Silva';
+  String nome2 = nomeCompleto!; // Garante que não é null (use com cuidado!)
+  
+  // Late initialization
+  late String descricao;
+  descricao = 'Inicializado depois';
+  print(descricao);
+}
+```
+
+### Operadores de Null Safety
+
+```dart
+void main() {
+  String? nome;
+  
+  // 1. Null-aware access (?.)
+  print(nome?.length); // null (não causa erro)
+  print(nome?.toUpperCase()); // null
+  
+  nome = 'João';
+  print(nome?.length); // 4
+  
+  // 2. Null-coalescing operator (??)
+  String? apelido;
+  String exibir = apelido ?? 'Sem apelido';
+  print(exibir); // 'Sem apelido'
+  
+  apelido = 'Johnny';
+  exibir = apelido ?? 'Sem apelido';
+  print(exibir); // 'Johnny'
+  
+  // 3. Null-aware assignment (??=)
+  String? mensagem;
+  mensagem ??= 'Primeira mensagem';
+  print(mensagem); // 'Primeira mensagem'
+  
+  mensagem ??= 'Segunda mensagem'; // Não atribui
+  print(mensagem); // 'Primeira mensagem'
+  
+  // 4. Null assertion operator (!)
+  String? texto = 'Olá';
+  String textoNaoNull = texto!; // Afirma que não é null
+  print(textoNaoNull); // 'Olá'
+  
+  // CUIDADO: Usar ! com valor null causa erro em runtime
+  // String? vazio = null;
+  // String erro = vazio!; // ERRO em runtime!
+  
+  // 5. Cascade null-aware (?..)
+  List<int>? lista;
+  lista?..add(1)..add(2)..add(3); // Não faz nada se lista for null
+  print(lista); // null
+  
+  lista = [0];
+  lista?..add(1)..add(2)..add(3);
+  print(lista); // [0, 1, 2, 3]
+}
+```
+
+### Late Variables
+
+```dart
+// Late para inicialização tardia
+class Configuracao {
+  late String apiUrl;
+  late int timeout;
+  
+  void inicializar() {
+    apiUrl = 'https://api.example.com';
+    timeout = 30;
+  }
+  
+  void fazerRequisicao() {
+    // apiUrl e timeout devem ser inicializados antes de usar
+    print('Fazendo requisição para $apiUrl com timeout de ${timeout}s');
+  }
+}
+
+// Late com inicialização lazy
+class Calculadora {
+  late final int resultadoPesado = _calcularResultadoPesado();
+  
+  int _calcularResultadoPesado() {
+    print('Calculando resultado pesado...');
+    // Simulação de cálculo pesado
+    int resultado = 0;
+    for (int i = 0; i < 1000000; i++) {
+      resultado += i;
+    }
+    return resultado;
+  }
+}
+
+void main() {
+  var config = Configuracao();
+  config.inicializar();
+  config.fazerRequisicao();
+  
+  print('\n---\n');
+  
+  var calc = Calculadora();
+  print('Calculadora criada');
+  
+  // resultadoPesado só é calculado quando acessado pela primeira vez
+  print('Acessando resultado...');
+  print(calc.resultadoPesado);
+  
+  // Segunda vez retorna o valor já calculado
+  print('Acessando novamente...');
+  print(calc.resultadoPesado);
+}
+```
+
+### Null Safety em Funções
+
+```dart
+// Parâmetros nullable
+String saudar(String nome, String? saudacao) {
+  return '${saudacao ?? "Olá"}, $nome!';
+}
+
+// Retorno nullable
+String? buscarNome(int id) {
+  if (id == 1) {
+    return 'João';
+  } else if (id == 2) {
+    return 'Maria';
+  }
+  return null; // Pode retornar null
+}
+
+// Retorno não-nullable
+String buscarNomeObrigatorio(int id) {
+  if (id == 1) {
+    return 'João';
+  } else if (id == 2) {
+    return 'Maria';
+  }
+  return 'Desconhecido'; // Sempre retorna algo
+}
+
+// Parâmetros opcionais com null safety
+void criarPerfil({
+  required String nome,  // Obrigatório
+  int? idade,           // Opcional, pode ser null
+  String email = 'não informado', // Opcional com valor padrão
+}) {
+  print('Nome: $nome');
+  print('Idade: ${idade ?? "não informada"}');
+  print('Email: $email');
+}
+
+void main() {
+  print(saudar('João', null));
+  print(saudar('Maria', 'Bem-vinda'));
+  
+  print('\n---\n');
+  
+  String? nome1 = buscarNome(1);
+  print(nome1); // João
+  
+  String? nome2 = buscarNome(999);
+  print(nome2); // null
+  
+  // Usar ?? para fornecer valor padrão
+  String nomeComPadrao = buscarNome(999) ?? 'Não encontrado';
+  print(nomeComPadrao);
+  
+  print('\n---\n');
+  
+  criarPerfil(nome: 'João');
+  criarPerfil(nome: 'Maria', idade: 25);
+  criarPerfil(nome: 'Pedro', idade: 30, email: 'pedro@email.com');
+}
+```
+
+### Null Safety em Collections
+
+```dart
+void main() {
+  // Lista nullable vs lista de elementos nullable
+  List<int>? listaNullable; // A lista inteira pode ser null
+  List<int?> listaDeNullable = [1, null, 3, null, 5]; // Elementos podem ser null
+  
+  print(listaNullable); // null
+  print(listaDeNullable); // [1, null, 3, null, 5]
+  
+  // Filtrar elementos não-null
+  List<int> somenteValores = listaDeNullable.whereType<int>().toList();
+  print(somenteValores); // [1, 3, 5]
+  
+  // Ou usar where com null check
+  List<int> somenteValores2 = listaDeNullable
+      .where((e) => e != null)
+      .map((e) => e!)
+      .toList();
+  print(somenteValores2); // [1, 3, 5]
+  
+  // Map com chaves/valores nullable
+  Map<String, int?> idades = {
+    'João': 25,
+    'Maria': null,
+    'Pedro': 30,
+  };
+  
+  print(idades['João']); // 25
+  print(idades['Maria']); // null
+  print(idades['Ana']); // null (chave não existe)
+  
+  // Distinguir entre chave não existente e valor null
+  print(idades.containsKey('Maria')); // true (chave existe, valor é null)
+  print(idades.containsKey('Ana')); // false (chave não existe)
+  
+  // Set de elementos nullable
+  Set<String?> nomes = {'João', null, 'Maria', null};
+  print(nomes); // {João, null, Maria} (null aparece apenas uma vez)
+}
+```
+
+### Pattern Matching com Null Safety (Dart 3.0+)
+
+```dart
+// Pattern matching simplifica verificações de null
+void processarValor(String? valor) {
+  switch (valor) {
+    case null:
+      print('Valor é null');
+      break;
+    case '':
+      print('String vazia');
+      break;
+    default:
+      print('Valor: $valor');
+  }
+}
+
+// If-case para null check
+void exemploIfCase(int? numero) {
+  if (numero case int n) {
+    // n é garantido não-null aqui
+    print('Número: $n');
+  } else {
+    print('Número é null');
+  }
+}
+
+void main() {
+  processarValor(null);
+  processarValor('');
+  processarValor('Dart');
+  
+  print('\n---\n');
+  
+  exemploIfCase(42);
+  exemploIfCase(null);
+}
+```
+
+### Exemplo Prático Completo
+
+```dart
+class Usuario {
+  String nome;
+  String? email; // Pode ser null
+  int idade;
+  String? telefone; // Pode ser null
+  
+  Usuario({
+    required this.nome,
+    this.email,
+    required this.idade,
+    this.telefone,
+  });
+  
+  void exibirInfo() {
+    print('Nome: $nome');
+    print('Email: ${email ?? "Não informado"}');
+    print('Idade: $idade');
+    print('Telefone: ${telefone ?? "Não informado"}');
+  }
+  
+  // Método que retorna valor nullable
+  String? obterDominio() {
+    return email?.split('@').lastOrNull;
+  }
+  
+  // Método que valida email
+  bool get temEmailValido {
+    return email?.contains('@') ?? false;
+  }
+  
+  // Método com null safety
+  void enviarEmail(String mensagem) {
+    if (email != null) {
+      // Dentro deste bloco, Dart sabe que email não é null
+      print('Enviando email para $email: $mensagem');
+    } else {
+      print('Não é possível enviar email: endereço não fornecido');
+    }
+  }
+  
+  // Usar pattern matching (Dart 3.0+)
+  String obterContato() {
+    return switch ((email, telefone)) {
+      (String e, String t) => 'Email: $e, Tel: $t',
+      (String e, null) => 'Email: $e',
+      (null, String t) => 'Tel: $t',
+      (null, null) => 'Sem contato',
+    };
+  }
+}
+
+void main() {
+  var usuario1 = Usuario(
+    nome: 'João',
+    email: 'joao@email.com',
+    idade: 25,
+    telefone: '11999999999',
+  );
+  usuario1.exibirInfo();
+  print('Domínio: ${usuario1.obterDominio()}');
+  print('Email válido: ${usuario1.temEmailValido}');
+  print('Contato: ${usuario1.obterContato()}');
+  usuario1.enviarEmail('Olá!');
+  
+  print('\n---\n');
+  
+  var usuario2 = Usuario(
+    nome: 'Maria',
+    idade: 30,
+  );
+  usuario2.exibirInfo();
+  print('Domínio: ${usuario2.obterDominio() ?? "Não disponível"}');
+  print('Email válido: ${usuario2.temEmailValido}');
+  print('Contato: ${usuario2.obterContato()}');
+  usuario2.enviarEmail('Oi!');
+}
+```
+
 ## Enums
 
 Enums (enumerações) são um tipo especial usado para representar um conjunto fixo de valores constantes.
