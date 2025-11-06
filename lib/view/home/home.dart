@@ -53,7 +53,7 @@ class _HomePageState extends State<HomePage> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: EditAppbarWidget(
-        title: 'Home Page',
+        title: 'STEM',
         onClose: () {
           // Handle close action
         },
