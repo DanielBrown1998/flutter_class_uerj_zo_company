@@ -1,3 +1,4 @@
+import 'package:curso/view/components/edit_appbar_widget.dart';
 import 'package:curso/viewmodels/home/home_viewmodels.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +19,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     // Access the provider after the first frame is rendered
-    // provider = context.read<HomeProvider>();
+    provider = context.read<HomeProvider>();
   }
 
   @override
@@ -51,9 +52,14 @@ class _HomePageState extends State<HomePage> {
     provider = context.watch<HomeProvider>();
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.inversePrimary,
-        title: Text(widget.title),
+      appBar: EditAppbarWidget(
+        title: 'Home Page',
+        onClose: () {
+          // Handle close action
+        },
+        onDone: () {
+          // Handle done action
+        },
       ),
       body: Center(
         child: Column(

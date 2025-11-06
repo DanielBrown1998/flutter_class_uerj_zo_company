@@ -7,9 +7,9 @@ class MyAppProd extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.system,
+      theme: ThemeData.light(),
       home: const HomePage(title: 'Flutter Demo Home Page'),
     );
   }
